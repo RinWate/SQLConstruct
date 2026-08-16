@@ -1,0 +1,75 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="SQLConstruct.App"
+             RequestedThemeVariant="Dark">
+
+    <Application.Resources>
+        <!-- Палитра приложения -->
+        <SolidColorBrush x:Key="App.Bg" Color="#17171C"/>
+        <SolidColorBrush x:Key="App.Panel" Color="#1F1F26"/>
+        <SolidColorBrush x:Key="App.PanelDeep" Color="#131318"/>
+        <SolidColorBrush x:Key="App.Border" Color="#2E2E38"/>
+        <SolidColorBrush x:Key="App.Text" Color="#E6E6EC"/>
+        <SolidColorBrush x:Key="App.TextDim" Color="#A4A4B0"/>
+        <SolidColorBrush x:Key="App.TextHint" Color="#73737F"/>
+    </Application.Resources>
+
+    <Application.Styles>
+        <FluentTheme DensityStyle="Compact"/>
+        <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml"/>
+
+        <!-- Окна: общий шрифт, кегль, фон и цвет текста -->
+        <Style Selector="Window">
+            <Setter Property="FontFamily" Value="Inter"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Background" Value="{DynamicResource App.Bg}"/>
+            <Setter Property="Foreground" Value="{DynamicResource App.Text}"/>
+        </Style>
+
+        <!-- Квадратная кнопка-значок (✕, →) -->
+        <Style Selector="Button.icon">
+            <Setter Property="Width" Value="26"/>
+            <Setter Property="Height" Value="26"/>
+            <Setter Property="MinWidth" Value="26"/>
+            <Setter Property="MinHeight" Value="26"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <!-- Подписи секций и подсказки -->
+        <Style Selector="TextBlock.caption">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{DynamicResource App.TextHint}"/>
+        </Style>
+        <Style Selector="TextBlock.hint">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Foreground" Value="{DynamicResource App.TextHint}"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+
+        <!-- «Карточка» — единая панель для секций -->
+        <Style Selector="Border.card">
+            <Setter Property="Background" Value="{DynamicResource App.Panel}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource App.Border}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Padding" Value="8"/>
+        </Style>
+
+        <Style Selector="DataGrid">
+            <Setter Property="Background" Value="{DynamicResource App.Panel}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource App.Border}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="RowBackground" Value="Transparent"/>
+        </Style>
+
+        <Style Selector="GridSplitter">
+            <Setter Property="Background" Value="#26262E"/>
+        </Style>
+        <Style Selector="Menu">
+            <Setter Property="Background" Value="{DynamicResource App.Bg}"/>
+        </Style>
+    </Application.Styles>
+</Application>

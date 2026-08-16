@@ -1,0 +1,67 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:SQLConstruct.ViewModels"
+        x:Class="SQLConstruct.Views.ConnectionDialog"
+        x:DataType="vm:ConnectionDialogViewModel"
+        Title="Подключение к базе данных"
+        Width="520" SizeToContent="Height" CanResize="False"
+        WindowStartupLocation="CenterOwner">
+
+    <StackPanel Margin="14">
+        <TabControl SelectedIndex="{Binding ModeIndex, Mode=TwoWay}">
+            <TabItem Header="SQLite">
+                <StackPanel Margin="6,10,6,6">
+                    <TextBlock Classes="caption" Text="ФАЙЛ БАЗЫ ДАННЫХ (.DB, .SQLITE)"/>
+                    <Grid ColumnDefinitions="*,Auto" Margin="0,6,0,0">
+                        <TextBox Text="{Binding SqlitePath, Mode=TwoWay}" PlaceholderText="Путь к файлу базы данных"/>
+                        <Button Grid.Column="1" Content="Обзор…" Margin="8,0,0,0" Click="OnBrowseSqlite"/>
+                    </Grid>
+                    <TextBlock Classes="hint" Margin="0,8,0,0"
+                               Text="База открывается в режиме «только чтение»."/>
+                </StackPanel>
+            </TabItem>
+            <TabItem Header="PostgreSQL">
+                <Grid Margin="6,10,6,6" ColumnDefinitions="130,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto">
+                    <TextBlock Text="Сервер:" VerticalAlignment="Center" Foreground="{DynamicResource App.TextDim}"/>
+                    <TextBox Grid.Column="1" Margin="0,4" Text="{Binding Host, Mode=TwoWay}" PlaceholderText="localhost"/>
+                    <TextBlock Grid.Row="1" Text="Порт:" VerticalAlignment="Center" Foreground="{DynamicResource App.TextDim}"/>
+                    <TextBox Grid.Row="1" Grid.Column="1" Margin="0,4" Text="{Binding Port, Mode=TwoWay}" PlaceholderText="5432"/>
+                    <TextBlock Grid.Row="2" Text="База данных:" VerticalAlignment="Center" Foreground="{DynamicResource App.TextDim}"/>
+                    <TextBox Grid.Row="2" Grid.Column="1" Margin="0,4" Text="{Binding Database, Mode=TwoWay}"/>
+                    <TextBlock Grid.Row="3" Text="Пользователь:" VerticalAlignment="Center" Foreground="{DynamicResource App.TextDim}"/>
+                    <TextBox Grid.Row="3" Grid.Column="1" Margin="0,4" Text="{Binding Username, Mode=TwoWay}"/>
+                    <TextBlock Grid.Row="4" Text="Пароль:" VerticalAlignment="Center" Foreground="{DynamicResource App.TextDim}"/>
+                    <TextBox Grid.Row="4" Grid.Column="1" Margin="0,4"
+                             Text="{Binding Password, Mode=TwoWay}"
+                             PasswordChar="●"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="MS SQL Server">
+                <Grid Margin="6,10,6,6" ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto">
+                    <TextBlock Text="Сервер:" VerticalAlignment="Center" Foreground="{DynamicResource App.TextDim}"/>
+                    <TextBox Grid.Column="1" Margin="0,4" Text="{Binding SqlServer, Mode=TwoWay}"
+                             PlaceholderText="localhost, localhost,1433 или localhost\SQLEXPRESS"/>
+                    <TextBlock Grid.Row="1" Text="База данных:" VerticalAlignment="Center" Foreground="{DynamicResource App.TextDim}"/>
+                    <TextBox Grid.Row="1" Grid.Column="1" Margin="0,4" Text="{Binding SqlDatabase, Mode=TwoWay}"/>
+                    <TextBlock Grid.Row="2" Text="Пользователь:" VerticalAlignment="Center" Foreground="{DynamicResource App.TextDim}"/>
+                    <TextBox Grid.Row="2" Grid.Column="1" Margin="0,4" Text="{Binding SqlUsername, Mode=TwoWay}"/>
+                    <TextBlock Grid.Row="3" Text="Пароль:" VerticalAlignment="Center" Foreground="{DynamicResource App.TextDim}"/>
+                    <TextBox Grid.Row="3" Grid.Column="1" Margin="0,4"
+                             Text="{Binding Password, Mode=TwoWay}"
+                             PasswordChar="●"/>
+                    <CheckBox Grid.Row="4" Grid.Column="1" Margin="0,8,0,0"
+                              Content="Windows-аутентификация (без логина и пароля)"
+                              IsChecked="{Binding SqlUseWindowsAuth, Mode=TwoWay}"/>
+                </Grid>
+            </TabItem>
+        </TabControl>
+
+        <TextBlock Text="{Binding Error}" Foreground="#FF6A6A" TextWrapping="Wrap" Margin="0,12,0,0"
+                   IsVisible="{Binding HasError}"/>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,14,0,0" Spacing="8">
+            <Button Content="Отмена" Width="90" Click="OnCancel"/>
+            <Button Content="Подключиться" Width="130" Click="OnOk"/>
+        </StackPanel>
+    </StackPanel>
+</Window>

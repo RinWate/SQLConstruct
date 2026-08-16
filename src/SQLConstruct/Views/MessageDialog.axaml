@@ -1,0 +1,12 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="SQLConstruct.Views.MessageDialog"
+        Title="Сообщение"
+        Width="520" SizeToContent="Height" CanResize="False"
+        WindowStartupLocation="CenterOwner">
+    <StackPanel Margin="14">
+        <TextBlock x:Name="MessageText" TextWrapping="Wrap" MaxWidth="480"
+                   Foreground="{DynamicResource App.Text}"/>
+        <Button Content="ОК" Width="90" HorizontalAlignment="Right" Margin="0,14,0,0" Click="OnOk"/>
+    </StackPanel>
+</Window>

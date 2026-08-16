@@ -1,0 +1,67 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:SQLConstruct.ViewModels"
+        xmlns:v="clr-namespace:SQLConstruct.Views"
+        x:Class="SQLConstruct.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="SQLConstruct — конструктор SQL-запросов"
+        Width="1280" Height="800" MinWidth="1000" MinHeight="600"
+        WindowStartupLocation="CenterScreen">
+
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="Файл">
+                <MenuItem Header="Новый запрос" Command="{Binding NewQueryCommand}" InputGesture="Ctrl+N"/>
+                <MenuItem Header="Открыть запрос..." Command="{Binding OpenQueryCommand}" InputGesture="Ctrl+O"/>
+                <MenuItem Header="Сохранить запрос..." Command="{Binding SaveQueryCommand}" InputGesture="Ctrl+S"/>
+                <Separator/>
+                <MenuItem Header="Выход" Command="{Binding ExitCommand}"/>
+            </MenuItem>
+            <MenuItem Header="База данных">
+                <MenuItem Header="Подключиться к SQLite / PostgreSQL / MS SQL..." Command="{Binding ConnectCommand}" InputGesture="Ctrl+D"/>
+                <Separator/>
+                <MenuItem Header="Загрузить схему из файла (DDL / JSON)..." Command="{Binding LoadSchemaFromFileCommand}"/>
+                <MenuItem Header="Сохранить схему в JSON..." Command="{Binding SaveSchemaCommand}"/>
+            </MenuItem>
+        </Menu>
+
+        <Border DockPanel.Dock="Bottom"
+                Background="{DynamicResource App.Panel}"
+                BorderBrush="{DynamicResource App.Border}"
+                BorderThickness="0,1,0,0" Padding="12,5">
+            <TextBlock Text="{Binding Status}" FontSize="12"
+                       Foreground="{DynamicResource App.TextDim}"
+                       TextTrimming="CharacterEllipsis"/>
+        </Border>
+
+        <Grid ColumnDefinitions="250,5,*" Margin="8">
+            <Grid RowDefinitions="Auto,Auto,*,Auto">
+                <TextBlock Classes="caption" Text="СХЕМА БАЗЫ"/>
+                <TextBox Grid.Row="1" x:Name="SchemaSearchBox" Margin="0,6,0,0"
+                         PlaceholderText="Поиск таблицы…"
+                         Text="{Binding SchemaTree.Filter, Mode=TwoWay}"/>
+                <Border Grid.Row="2" Classes="card" Margin="0,8,0,0" Padding="2">
+                    <TreeView x:Name="SchemaTreeView"
+                              Background="Transparent" BorderThickness="0" Padding="2"
+                              DoubleTapped="OnSchemaTreeDoubleTapped"
+                              ItemsSource="{Binding SchemaTree.Tables}">
+                        <TreeView.ItemTemplate>
+                            <TreeDataTemplate ItemsSource="{Binding Children}" x:DataType="vm:ISchemaNode">
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <TextBlock Text="{Binding Name}"/>
+                                    <TextBlock Text="{Binding Hint}" Classes="hint"/>
+                                </StackPanel>
+                            </TreeDataTemplate>
+                        </TreeView.ItemTemplate>
+                    </TreeView>
+                </Border>
+                <TextBlock Grid.Row="3" Classes="hint" Margin="0,8,0,0"
+                           Text="Двойной клик — добавить таблицу или поле в запрос"/>
+            </Grid>
+
+            <GridSplitter Grid.Column="1" Width="5"/>
+
+            <v:QueryBuilderControl Grid.Column="2" DataContext="{Binding Query}"/>
+        </Grid>
+    </DockPanel>
+</Window>

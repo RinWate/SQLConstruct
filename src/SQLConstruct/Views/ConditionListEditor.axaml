@@ -1,0 +1,61 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:SQLConstruct.ViewModels"
+             x:Class="SQLConstruct.Views.ConditionListEditor"
+             x:DataType="vm:ConditionListViewModel">
+
+    <Grid RowDefinitions="Auto,Auto,Auto,*">
+        <DockPanel>
+            <Button DockPanel.Dock="Right" Content="+ Условие" Command="{Binding AddCommand}"/>
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <TextBlock Classes="caption" Text="ОБЪЕДИНЯТЬ ПО" VerticalAlignment="Center"/>
+                <ComboBox MinWidth="110"
+                          ItemsSource="{Binding LogicTitles}"
+                          SelectedIndex="{Binding LogicIndex, Mode=TwoWay}"/>
+            </StackPanel>
+        </DockPanel>
+
+        <Grid Grid.Row="1" Margin="0,6,0,0" ColumnDefinitions="1.2*,1.1*,1*,90,28">
+            <TextBlock Classes="caption" Text="ПОЛЕ"/>
+            <TextBlock Grid.Column="1" Classes="caption" Margin="4,0,0,0" Text="ВИД СРАВНЕНИЯ"/>
+            <TextBlock Grid.Column="2" Classes="caption" Margin="4,0,0,0" Text="ЗНАЧЕНИЕ"/>
+        </Grid>
+
+        <ScrollViewer Grid.Row="2" Margin="0,6,0,0">
+            <StackPanel>
+                <TextBlock Classes="hint" Margin="0,4,0,2"
+                           Text="Условий нет. Нажмите «+ Условие», чтобы добавить отбор."
+                           IsVisible="{Binding !HasItems}"/>
+                <ItemsControl ItemsSource="{Binding Items}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:ConditionItemViewModel">
+                            <Grid ColumnDefinitions="1.2*,1.1*,1*,90,28" Margin="0,2">
+                                <ComboBox ItemsSource="{Binding Fields}"
+                                          SelectedItem="{Binding Field, Mode=TwoWay}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:FieldRefViewModel">
+                                            <TextBlock Text="{Binding Display}" TextTrimming="CharacterEllipsis"/>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                                <ComboBox Grid.Column="1" Margin="4,0,0,0"
+                                          ItemsSource="{Binding OperatorTitles}"
+                                          SelectedIndex="{Binding OpIndex, Mode=TwoWay}"/>
+                                <TextBox Grid.Column="2" Margin="4,0,0,0"
+                                         PlaceholderText="Значение"
+                                         Text="{Binding Value, Mode=TwoWay}"
+                                         IsVisible="{Binding ShowValue}"/>
+                                <TextBox Grid.Column="3" Margin="4,0,0,0"
+                                         PlaceholderText="и"
+                                         Text="{Binding Value2, Mode=TwoWay}"
+                                         IsVisible="{Binding ShowValue2}"/>
+                                <Button Grid.Column="4" Classes="icon" Content="✕" Margin="4,0,0,0"
+                                        Command="{Binding RemoveCommand}" ToolTip.Tip="Удалить условие"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

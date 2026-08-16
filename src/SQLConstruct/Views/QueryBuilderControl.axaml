@@ -1,0 +1,297 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:SQLConstruct.ViewModels"
+             xmlns:v="clr-namespace:SQLConstruct.Views"
+             x:Class="SQLConstruct.Views.QueryBuilderControl"
+             x:DataType="vm:QueryBuilderViewModel">
+
+    <UserControl.KeyBindings>
+        <KeyBinding Gesture="F5" Command="{Binding ExecuteQueryCommand}"/>
+    </UserControl.KeyBindings>
+    
+    <UserControl.Styles>
+        <Style Selector="TabItem">
+            <Setter Property="FontSize" Value="16"></Setter>
+        </Style>
+    </UserControl.Styles>
+    <TabControl>
+
+        <!-- ============ Таблицы и поля ============ -->
+        <TabItem Header="Таблицы и поля">
+            <Grid ColumnDefinitions="230,Auto,1*,Auto,1.6*" Margin="8">
+
+                <Border Classes="card">
+                    <Grid RowDefinitions="Auto,*,Auto">
+                        <TextBlock Classes="caption" Text="ТАБЛИЦЫ В ЗАПРОСЕ"/>
+                        <ListBox Grid.Row="1" Margin="0,6,0,0"
+                                 Background="Transparent" BorderThickness="0"
+                                 ItemsSource="{Binding Tables}"
+                                 SelectedItem="{Binding SelectedTable, Mode=TwoWay}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate x:DataType="vm:QueryTableItemViewModel">
+                                    <TextBlock Text="{Binding ListDisplay}" TextTrimming="CharacterEllipsis"/>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                        <Button Grid.Row="2" Content="Удалить таблицу"
+                                HorizontalAlignment="Stretch" Margin="0,6,0,0"
+                                Command="{Binding RemoveSelectedTableCommand}"/>
+                    </Grid>
+                </Border>
+
+                <Button Grid.Column="1" Classes="icon" Content="→"
+                        VerticalAlignment="Center" Margin="4,0"
+                        ToolTip.Tip="Добавить выбранное поле в выборку"
+                        Command="{Binding AddSelectedFieldCommand}"/>
+
+                <Border Grid.Column="2" Classes="card">
+                    <Grid RowDefinitions="Auto,*,Auto">
+                        <TextBlock Classes="caption" Text="ДОСТУПНЫЕ ПОЛЯ"/>
+                        <ListBox Grid.Row="1" Margin="0,6,0,0"
+                                 Background="Transparent" BorderThickness="0"
+                                 x:Name="AvailableFieldsList"
+                                 ItemsSource="{Binding AvailableFields}"
+                                 SelectedItem="{Binding SelectedAvailableField, Mode=TwoWay}"
+                                 DoubleTapped="OnAvailableFieldDoubleTapped">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate x:DataType="vm:FieldRefViewModel">
+                                    <TextBlock Text="{Binding Display}" TextTrimming="CharacterEllipsis"/>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                        <Button Grid.Row="2" Content="Выбрать все поля"
+                                HorizontalAlignment="Stretch" Margin="0,6,0,0"
+                                ToolTip.Tip="Добавить все поля всех таблиц запроса в выборку"
+                                Command="{Binding AddAllFieldsCommand}"/>
+                    </Grid>
+                </Border>
+
+                <Button Grid.Column="3" Classes="icon" Content="→"
+                        VerticalAlignment="Center" Margin="4,0"
+                        ToolTip.Tip="Добавить выбранное поле в выборку"
+                        Command="{Binding AddSelectedFieldCommand}"/>
+
+                <Border Grid.Column="4" Classes="card">
+                    <Grid RowDefinitions="Auto,*,Auto,Auto">
+                        <TextBlock Classes="caption" Text="ВЫБРАННЫЕ ПОЛЯ"/>
+                        <ScrollViewer Grid.Row="1" Margin="0,6,0,0">
+                            <StackPanel>
+                                <TextBlock Classes="hint" Margin="0,4,0,2"
+                                           Text="Добавьте поля кнопкой «→» или двойным кликом слева"
+                                           IsVisible="{Binding !HasSelectedFields}"/>
+                                <ItemsControl ItemsSource="{Binding SelectedFields}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:FieldItemViewModel">
+                                            <Grid ColumnDefinitions="*,110,140,28" Margin="0,2">
+                                                <TextBlock Text="{Binding Display}" TextTrimming="CharacterEllipsis"
+                                                           VerticalAlignment="Center"/>
+                                                <TextBox Grid.Column="1" Margin="4,0,0,0"
+                                                         PlaceholderText="Псевдоним"
+                                                         Text="{Binding OutputAlias, Mode=TwoWay}"/>
+                                                <ComboBox Grid.Column="2" Margin="4,0,0,0"
+                                                          ItemsSource="{Binding AggregateTitles}"
+                                                          SelectedIndex="{Binding AggregateIndex, Mode=TwoWay}"/>
+                                                <Button Grid.Column="3" Classes="icon" Content="✕" Margin="4,0,0,0"
+                                                        Command="{Binding RemoveCommand}"
+                                                        ToolTip.Tip="Убрать поле"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </ScrollViewer>
+                        <Separator Grid.Row="2" Margin="0,6,0,0"/>
+                        <StackPanel Grid.Row="3" Orientation="Horizontal" Spacing="10" Margin="0,6,0,0">
+                            <CheckBox Content="DISTINCT" IsChecked="{Binding Distinct, Mode=TwoWay}"/>
+                            <TextBlock Text="LIMIT:" VerticalAlignment="Center"
+                                       FontSize="12" Foreground="{DynamicResource App.TextDim}"/>
+                            <TextBox Width="70" PlaceholderText="500"
+                                     Text="{Binding LimitText, Mode=TwoWay}"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </Grid>
+        </TabItem>
+
+        <!-- ============ Связи ============ -->
+        <TabItem Header="Связи">
+            <Grid RowDefinitions="Auto,*,Auto" Margin="8">
+                <Grid ColumnDefinitions="1*,1.1*,150,1*,1.1*,28">
+                    <TextBlock Classes="caption" Text="ТАБЛИЦА"/>
+                    <TextBlock Grid.Column="1" Classes="caption" Margin="4,0,0,0" Text="ПОЛЕ"/>
+                    <TextBlock Grid.Column="2" Classes="caption" Margin="4,0,0,0" Text="ТИП СОЕДИНЕНИЯ"/>
+                    <TextBlock Grid.Column="3" Classes="caption" Margin="4,0,0,0" Text="ПРИСОЕДИНИТЬ"/>
+                    <TextBlock Grid.Column="4" Classes="caption" Margin="4,0,0,0" Text="ПОЛЕ"/>
+                </Grid>
+
+                <ScrollViewer Grid.Row="1" Margin="0,6,0,0">
+                    <StackPanel>
+                        <TextBlock Classes="hint" Margin="0,4,0,2"
+                                   Text="Первая таблица попадает во FROM; таблицы без связи соединяются через CROSS JOIN. При добавлении таблицы связь по внешнему ключу создается автоматически."
+                                   IsVisible="{Binding !HasJoins}"/>
+                        <ItemsControl ItemsSource="{Binding Joins}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:JoinItemViewModel">
+                                    <Grid ColumnDefinitions="1*,1.1*,150,1*,1.1*,28" Margin="0,2">
+                                        <ComboBox ItemsSource="{Binding TableOptions}"
+                                                  SelectedItem="{Binding LeftAlias, Mode=TwoWay}"/>
+                                        <ComboBox Grid.Column="1" Margin="4,0,0,0"
+                                                  ItemsSource="{Binding LeftColumns}"
+                                                  SelectedItem="{Binding LeftColumn, Mode=TwoWay}"/>
+                                        <ComboBox Grid.Column="2" Margin="4,0,0,0"
+                                                  ItemsSource="{Binding JoinTitles}"
+                                                  SelectedIndex="{Binding TypeIndex, Mode=TwoWay}"/>
+                                        <ComboBox Grid.Column="3" Margin="4,0,0,0"
+                                                  ItemsSource="{Binding TableOptions}"
+                                                  SelectedItem="{Binding RightAlias, Mode=TwoWay}"/>
+                                        <ComboBox Grid.Column="4" Margin="4,0,0,0"
+                                                  ItemsSource="{Binding RightColumns}"
+                                                  SelectedItem="{Binding RightColumn, Mode=TwoWay}"/>
+                                        <Button Grid.Column="5" Classes="icon" Content="✕" Margin="4,0,0,0"
+                                                Command="{Binding RemoveCommand}" ToolTip.Tip="Удалить связь"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <Button Grid.Row="2" Content="+ Добавить связь" HorizontalAlignment="Left"
+                        Margin="0,6,0,0" Command="{Binding AddJoinCommand}"/>
+            </Grid>
+        </TabItem>
+
+        <!-- ============ Группировка ============ -->
+        <TabItem Header="Группировка">
+            <Grid RowDefinitions="Auto,Auto,*,Auto,*" Margin="8">
+                <ToggleSwitch Content="Использовать группировку (GROUP BY)"
+                              IsChecked="{Binding UseGrouping, Mode=TwoWay}"/>
+                <TextBlock Grid.Row="1" Classes="caption" Margin="0,10,0,4" Text="ГРУППИРОВАТЬ ПО ПОЛЯМ"/>
+                <Border Grid.Row="2" Classes="card">
+                    <ScrollViewer>
+                        <StackPanel>
+                            <TextBlock Classes="hint" Margin="0,2"
+                                       Text="Сначала выберите поля на вкладке «Таблицы и поля»"
+                                       IsVisible="{Binding !HasSelectedFields}"/>
+                            <ItemsControl ItemsSource="{Binding SelectedFields}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:FieldItemViewModel">
+                                        <CheckBox Content="{Binding Display}" Margin="0,3,0,0"
+                                                  IsChecked="{Binding GroupBy, Mode=TwoWay}"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Border>
+                <TextBlock Grid.Row="3" Classes="caption" Margin="0,10,0,0" Text="УСЛОВИЯ ИТОГОВ (HAVING)"/>
+                <v:ConditionListEditor Grid.Row="4" Margin="0,6,0,0" DataContext="{Binding HavingList}"/>
+            </Grid>
+        </TabItem>
+
+        <!-- ============ Условия ============ -->
+        <TabItem Header="Условия">
+            <v:ConditionListEditor Margin="8" DataContext="{Binding WhereList}"/>
+        </TabItem>
+
+        <!-- ============ Порядок ============ -->
+        <TabItem Header="Порядок">
+            <Grid RowDefinitions="Auto,*,Auto" Margin="8">
+                <Grid ColumnDefinitions="1*,170,28">
+                    <TextBlock Classes="caption" Text="ПОЛЕ"/>
+                    <TextBlock Grid.Column="1" Classes="caption" Margin="4,0,0,0" Text="НАПРАВЛЕНИЕ"/>
+                </Grid>
+
+                <ScrollViewer Grid.Row="1" Margin="0,6,0,0">
+                    <StackPanel>
+                        <TextBlock Classes="hint" Margin="0,4,0,2" Text="Сортировка не задана"
+                                   IsVisible="{Binding !HasOrders}"/>
+                        <ItemsControl ItemsSource="{Binding Orders}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:OrderItemViewModel">
+                                    <Grid ColumnDefinitions="1*,170,28" Margin="0,2">
+                                        <ComboBox ItemsSource="{Binding Fields}"
+                                                  SelectedItem="{Binding Field, Mode=TwoWay}">
+                                            <ComboBox.ItemTemplate>
+                                                <DataTemplate x:DataType="vm:FieldRefViewModel">
+                                                    <TextBlock Text="{Binding Display}" TextTrimming="CharacterEllipsis"/>
+                                                </DataTemplate>
+                                            </ComboBox.ItemTemplate>
+                                        </ComboBox>
+                                        <ComboBox Grid.Column="1" Margin="4,0,0,0"
+                                                  ItemsSource="{Binding DirectionTitles}"
+                                                  SelectedIndex="{Binding DirIndex, Mode=TwoWay}"/>
+                                        <Button Grid.Column="2" Classes="icon" Content="✕" Margin="4,0,0,0"
+                                                Command="{Binding RemoveCommand}" ToolTip.Tip="Убрать сортировку"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <Button Grid.Row="2" Content="+ Добавить сортировку" HorizontalAlignment="Left"
+                        Margin="0,6,0,0" Command="{Binding AddOrderCommand}"/>
+            </Grid>
+        </TabItem>
+
+        <!-- ============ Скрипт ============ -->
+        <TabItem Header="Скрипт">
+            <Grid RowDefinitions="Auto,Auto,*" Margin="8">
+                <TextBlock Classes="hint" Text="Скрипт выполняется перед основным запросом одним пакетом; результатом считается последний SELECT. Для временных таблиц: MS SQL — CREATE TABLE #имя (…), SQLite — CREATE TEMP TABLE имя (…), PostgreSQL — CREATE TEMP TABLE имя (…). Таблицы из CREATE TABLE попадут в схему кнопкой ниже и будут доступны как обычные таблицы. Запись делайте идемпотентной (DROP TABLE IF EXISTS …), т.к. пакет выполняется заново при каждом запуске."/>
+                <Button Grid.Row="1" Content="Обновить таблицы из скрипта" HorizontalAlignment="Left"
+                        Margin="0,8,0,0" Command="{Binding ParseScriptCommand}"
+                        ToolTip.Tip="Разобрать CREATE TABLE из скрипта и добавить таблицы в дерево схемы"/>
+                <TextBox Grid.Row="2" Margin="0,8,0,0"
+                         Text="{Binding Script, Mode=TwoWay}"
+                         AcceptsReturn="True"
+                         FontFamily="Consolas, monospace"
+                         FontSize="13"
+                         Padding="10"
+                         Background="{DynamicResource App.PanelDeep}"
+                         PlaceholderText="-- Подготовительный скрипт (пакет)&#x0a;DROP TABLE IF EXISTS #report;&#x0a;CREATE TABLE #report (id INT PRIMARY KEY, name NVARCHAR(100));&#x0a;INSERT INTO #report (id, name) SELECT id, name FROM users;"
+                         ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                         ScrollViewer.VerticalScrollBarVisibility="Auto"
+                         VerticalContentAlignment="Top"/>
+            </Grid>
+        </TabItem>
+
+        <!-- ============ SQL и результат ============ -->
+        <TabItem Header="SQL и результат">
+            <Grid RowDefinitions="Auto,1*,Auto,1.4*" Margin="8,6,8,8">
+                <DockPanel Grid.Row="0">
+                    <TextBlock DockPanel.Dock="Right" VerticalAlignment="Center"
+                               FontSize="12" Foreground="{DynamicResource App.TextDim}"
+                               Text="{Binding ExecuteStatus}"/>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Button Content="Копировать SQL" Click="OnCopySql"/>
+                        <Button Content="Выполнить запрос  F5" Command="{Binding ExecuteQueryCommand}"/>
+                    </StackPanel>
+                </DockPanel>
+
+                <TextBox Grid.Row="1" Margin="0,6,0,0"
+                         Text="{Binding SqlText, Mode=OneWay}"
+                         IsReadOnly="True"
+                         FontFamily="Consolas, monospace"
+                         FontSize="13"
+                         Padding="10"
+                         Background="{DynamicResource App.PanelDeep}"
+                         AcceptsReturn="True"
+                         TextWrapping="NoWrap"
+                         ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                         ScrollViewer.VerticalScrollBarVisibility="Auto"
+                         VerticalContentAlignment="Top"/>
+
+                <GridSplitter Grid.Row="2" Height="5" Margin="0,6,0,0"/>
+
+                <DataGrid Grid.Row="3" x:Name="ResultsGrid" Margin="0,6,0,0"
+                          ItemsSource="{Binding Results.Rows}"
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True"
+                          CanUserReorderColumns="True"
+                          CanUserResizeColumns="True"
+                          CanUserSortColumns="True"/>
+            </Grid>
+        </TabItem>
+    </TabControl>
+</UserControl>
